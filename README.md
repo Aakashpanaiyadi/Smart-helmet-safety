@@ -58,3 +58,8 @@ RB6 → Key detection
 RC4 → Motor control
 
 RB0, RB1 → Switches
+
+
+
+<img width="1240" height="873" alt="image" src="https://github.com/user-attachments/assets/356807c3-0c2e-4710-8e00-a59735135d99" />
+
