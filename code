@@ -1,0 +1,231 @@
+#include<pic.h>
+#define RS RC0
+#define RW RC1
+#define EN RC2
+#define GS RB4
+#define HL RB5
+#define KY RB6
+#define MTR RC4
+#define sw RB0
+#define sw1 RB1
+int k=0;
+int a,b,c,d,e,f;
+int g=9;
+unsigned int T=0,z=0,l=0;
+
+void delay(unsigned int x)
+{
+while(x--);
+}
+void lcd_command(unsigned char con)
+{
+PORTD=con;
+RS=0;
+RW=0;
+EN=1;
+delay(100);
+EN=0;
+}
+void lcd_data(unsigned char data)
+{
+PORTD=data;
+RS=1;
+RW=0;
+EN=1;
+delay(100);
+EN=0;
+}
+void lcd_display(unsigned char m[])
+{
+int i;
+for(i=0;m[i]!=0;i++)
+{
+lcd_data(m[i]);
+}
+}
+void lcd_init()
+{
+lcd_command(0X38);
+lcd_command(0X0C);
+lcd_command(0X01);
+lcd_command(0X06);
+}
+void interrupt sb()
+{
+if(RCIF==1)
+{
+RCIF=0;
+l=RCREG;
+}
+}
+void serial(const unsigned char *a)
+{
+unsigned char i;
+for(i=0;a[i]!=0;i++)
+{
+TXREG=a[i];
+delay(20000);
+//
+}
+}
+void delay1()
+{
+for(int f=0;f<100;f++)
+{
+T2CON = 0X8B;
+PS1=255;
+TMR2ON=1;
+while(TMR2IF == 0);
+TMR2ON=0;
+TMR2IF=0;
+}
+}
+void main()
+{
+unsigned int  temp;
+ADCON1=0X8E;
+ADCON0=0X40;
+TRISD=0X00;
+TRISA=0X01;
+PORTD=0X00;
+PORTA=0X00;
+TRISB=0X03;
+TRISC=0x80;
+PORTC=0x00;
+TXSTA=0x24;
+RCSTA=0x90;
+SPBRG=25;
+PEIE=1;
+GIE=1;
+INTE=1;
+RCIE=1;
+lcd_init();
+delay(100);
+while(1)
+{
+if(sw1==0&&g==9)
+{
+CHS2=0;
+CHS1=0;
+CHS0=0;
+ADON=1;
+ADCON0=(ADCON0|0X04);
+temp=ADRESH<<8;
+temp=temp+ADRESL;
+a=temp/1000;
+b=temp%1000;
+c=b/100;
+d=b%100;
+e=d/10;
+f=d%10;
+if(c<=3&&a==0)
+{
+k=0;
+lcd_command(0xC0);
+lcd_display("LOW LVL FUEL");
+}
+if(c>3&&c<7)
+{
+lcd_command(0xC0);
+lcd_display("MED LVL FUEL");
+ k=1;
+}
+if(c>7||a==1)
+{
+lcd_command(0xC0);
+lcd_display("OK LVL FUEL");
+ k=1;
+}
+if(GS==0&&HL==1&&KY==1&&k==1)//3
+{
+lcd_command(0x80);
+lcd_display("Enjoy the ride        ");
+delay(10000);
+MTR=1;
+delay(50000);
+}
+if(GS==0&&HL==0&&KY==1)//1
+{
+lcd_command(0x80);
+lcd_display("Wear hlmt         ");
+MTR=0;
+delay(50000);
+}
+if(GS==0&&HL==1&&KY==0)//2
+{
+lcd_command(0x80);
+lcd_display("Pls on the key    ");
+delay(50000);
+MTR=0;
+}
+if(GS==1&&HL==0&&KY==0)//4
+{
+lcd_command(0x80);
+lcd_display("Dont drink n drv    ");
+delay(50000);
+MTR=0;
+}
+if(GS==1&&HL==0&&KY==1)//5
+{
+lcd_command(0x80);
+lcd_display("Wear hlmt & dnt drnk drv");
+delay(50000);
+MTR=0;
+}
+if(GS==1&&HL==1&&KY==0)//6
+{
+lcd_command(0x80);
+lcd_display("Dont drink n drv    ");
+delay(50000);
+MTR=0;
+}
+if(GS==1&&HL==1&&KY==1)//7
+{
+lcd_command(0x80);
+lcd_display("Dont drink n drv     ");
+delay(50000);
+MTR=0;
+}
+if(GS==0&&HL==0&&KY==0)//0
+{
+lcd_command(0x80);
+
+lcd_display("pls on the key     ");
+MTR=0;
+delay(50000);
+}
+}
+else if(sw1==1&&z==0)
+{
+lcd_command(0X01);
+for(g=9;g>0;g--)
+{
+lcd_command(0X80);
+lcd_data(g+0x30);
+delay1();
+if(sw == 1)
+{
+sw1=0;
+delay(50000);delay(50000);
+if(l=='1')
+{
+serial("Location transmited");
+lcd_command(0X80);
+lcd_display("Location shared via gsm");
+g=0;
+z=1;
+}
+}
+}
+sw1=0;
+if(g==0)
+{
+lcd_command(0x80);
+lcd_display("Kindly take rest ");
+lcd_command(0xC0);
+lcd_command("Few minutes     ");
+z=1;
+}
+}
+}
+}
