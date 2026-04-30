@@ -38,7 +38,7 @@ Key Switch (KY)
 Potentiometer as Fuel Level Sensor (ADC input)
 
 Motor 
-
+Due to simulation ,instead of GSM module he stored data is Transmitted
 Pin Configuration
 
 RC0, RC1, RC2 → LCD control pins (RS, RW, EN)
