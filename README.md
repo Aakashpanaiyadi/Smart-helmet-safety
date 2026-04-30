@@ -23,25 +23,22 @@ Countdown safety delay
 
 The system displays appropriate messages on a 16×2 LCD and controls the motor (MTR) accordingly.
 
-Hardware Components Used
+Components Used in simulation 
 
 PIC Microcontroller
 
 16×2 LCD Display
 
-Alcohol/Gas Sensor (GS)
+Push Button as Alcohol/Gas Sensor (GS)
 
-Helmet Detection Switch (HL)
+Push Button as Helmet Detection Switch (HL)
 
 Key Switch (KY)
 
-Fuel Level Sensor (ADC input)
+Potentiometer asFuel Level Sensor (ADC input)
 
-GSM Module (UART)
+Motor 
 
-Motor / Relay
-
-Push Buttons (sw, sw1)
 
 Pin Configuration
 
