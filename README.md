@@ -35,10 +35,9 @@ Push Button as Helmet Detection Switch (HL)
 
 Key Switch (KY)
 
-Potentiometer asFuel Level Sensor (ADC input)
+Potentiometer as Fuel Level Sensor (ADC input)
 
 Motor 
-
 
 Pin Configuration
 
@@ -46,11 +45,11 @@ RC0, RC1, RC2 → LCD control pins (RS, RW, EN)
 
 PORTD → LCD data pins
 
-RB4 → Gas sensor (alcohol detection)
+RB4 →  Push Button (Gas sensor (alcohol detection))
 
-RB5 → Helmet sensor
+RB5 →  Push Button  (Helmet sensor)
 
-RB6 → Key detection
+RB6 →  Push Button  (Key detection)
 
 RC4 → Motor control
 
