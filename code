@@ -13,11 +13,12 @@ int a,b,c,d,e,f;
 int g=9;
 unsigned int T=0,z=0,l=0;
 
-void delay(unsigned int x)
+void delay(unsigned int x)  //delay function 
 {
 while(x--);
 }
-void lcd_command(unsigned char con)
+
+void lcd_command(unsigned char con)    //command fun to LCD
 {
 PORTD=con;
 RS=0;
@@ -26,7 +27,8 @@ EN=1;
 delay(100);
 EN=0;
 }
-void lcd_data(unsigned char data)
+
+void lcd_data(unsigned char data)  //character fun to LCD
 {
 PORTD=data;
 RS=1;
@@ -35,7 +37,8 @@ EN=1;
 delay(100);
 EN=0;
 }
-void lcd_display(unsigned char m[])
+
+void lcd_display(unsigned char m[])   // string fun on LCD
 {
 int i;
 for(i=0;m[i]!=0;i++)
@@ -43,14 +46,16 @@ for(i=0;m[i]!=0;i++)
 lcd_data(m[i]);
 }
 }
-void lcd_init()
+
+void lcd_init() //LCD initialization
 {
 lcd_command(0X38);
 lcd_command(0X0C);
 lcd_command(0X01);
 lcd_command(0X06);
 }
-void interrupt sb()
+
+void interrupt sb()  // UART receive interrupt
 {
 if(RCIF==1)
 {
@@ -58,17 +63,18 @@ RCIF=0;
 l=RCREG;
 }
 }
-void serial(const unsigned char *a)
+
+void serial(const unsigned char *a) // Send string through UART
 {
 unsigned char i;
 for(i=0;a[i]!=0;i++)
 {
 TXREG=a[i];
 delay(20000);
-//
 }
 }
-void delay1()
+ 
+void delay1()  // timer2 delay function
 {
 for(int f=0;f<100;f++)
 {
@@ -83,8 +89,11 @@ TMR2IF=0;
 void main()
 {
 unsigned int  temp;
+// ADC configuration
 ADCON1=0X8E;
 ADCON0=0X40;
+
+//Port configuration
 TRISD=0X00;
 TRISA=0X01;
 PORTD=0X00;
@@ -92,9 +101,13 @@ PORTA=0X00;
 TRISB=0X03;
 TRISC=0x80;
 PORTC=0x00;
+
+// UART configuration
 TXSTA=0x24;
 RCSTA=0x90;
 SPBRG=25;
+
+// Tnterrupt config
 PEIE=1;
 GIE=1;
 INTE=1;
@@ -103,6 +116,11 @@ lcd_init();
 delay(100);
 while(1)
 {
+
+       /*
+       * Fuel level checking mode
+       * sw1 = 0 enables fuel level monitoring
+        */
 if(sw1==0&&g==9)
 {
 CHS2=0;
@@ -110,14 +128,20 @@ CHS1=0;
 CHS0=0;
 ADON=1;
 ADCON0=(ADCON0|0X04);
+
+//Read ADC value
 temp=ADRESH<<8;
 temp=temp+ADRESL;
+
+// Separate ADC value into digits
 a=temp/1000;
 b=temp%1000;
 c=b/100;
 d=b%100;
 e=d/10;
 f=d%10;
+
+// Check fuel level
 if(c<=3&&a==0)
 {
 k=0;
@@ -136,6 +160,13 @@ lcd_command(0xC0);
 lcd_display("OK LVL FUEL");
  k=1;
 }
+
+   /*
+             * Vehicle safety condition
+             * GS = alcohol sensor
+             * HL = helmet switch
+             * KY = key switch
+             */
 if(GS==0&&HL==1&&KY==1&&k==1)//3
 {
 lcd_command(0x80);
@@ -144,6 +175,8 @@ delay(10000);
 MTR=1;
 delay(50000);
 }
+
+//Helmet is not worn
 if(GS==0&&HL==0&&KY==1)//1
 {
 lcd_command(0x80);
@@ -151,6 +184,8 @@ lcd_display("Wear hlmt         ");
 MTR=0;
 delay(50000);
 }
+
+//Key is not turned ON
 if(GS==0&&HL==1&&KY==0)//2
 {
 lcd_command(0x80);
@@ -158,6 +193,8 @@ lcd_display("Pls on the key    ");
 delay(50000);
 MTR=0;
 }
+
+//Alcohol detected
 if(GS==1&&HL==0&&KY==0)//4
 {
 lcd_command(0x80);
@@ -165,6 +202,8 @@ lcd_display("Dont drink n drv    ");
 delay(50000);
 MTR=0;
 }
+
+// Helmet not worn + alcohol detected
 if(GS==1&&HL==0&&KY==1)//5
 {
 lcd_command(0x80);
@@ -172,6 +211,8 @@ lcd_display("Wear hlmt & dnt drnk drv");
 delay(50000);
 MTR=0;
 }
+
+//Alcohol detected+hemet worn
 if(GS==1&&HL==1&&KY==0)//6
 {
 lcd_command(0x80);
@@ -179,6 +220,8 @@ lcd_display("Dont drink n drv    ");
 delay(50000);
 MTR=0;
 }
+
+//Alcohol detected + helmet worn+key on
 if(GS==1&&HL==1&&KY==1)//7
 {
 lcd_command(0x80);
@@ -186,6 +229,8 @@ lcd_display("Dont drink n drv     ");
 delay(50000);
 MTR=0;
 }
+
+//Key is OFF 
 if(GS==0&&HL==0&&KY==0)//0
 {
 lcd_command(0x80);
@@ -195,14 +240,27 @@ MTR=0;
 delay(50000);
 }
 }
+
+    /*
+         * Emergency / location sharing mode
+         * Starts countdown before sending location
+         */
+
 else if(sw1==1&&z==0)
 {
 lcd_command(0X01);
+
+//9 second countdown
 for(g=9;g>0;g--)
 {
 lcd_command(0X80);
 lcd_data(g+0x30);
 delay1();
+
+                /*
+                 * If switch is pressed during countdown,
+                 * send location through GSM
+                 */
 if(sw == 1)
 {
 sw1=0;
@@ -218,12 +276,14 @@ z=1;
 }
 }
 sw1=0;
+
+ /* Countdown completed without sharing location */
 if(g==0)
 {
 lcd_command(0x80);
 lcd_display("Kindly take rest ");
 lcd_command(0xC0);
-lcd_command("Few minutes     ");
+lcd_display("Few minutes     ");
 z=1;
 }
 }
