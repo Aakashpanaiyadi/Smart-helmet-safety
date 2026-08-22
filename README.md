@@ -5,55 +5,52 @@ Description of Smart Helmet Code
 
 This program is developed for a Smart Helmet System using a PIC microcontroller, LCD display, GSM module, sensors, and motor control. The main objective of this system is to ensure rider safety by allowing vehicle ignition only when safety conditions are satisfied and to provide alerts and emergency communication.
 
-System Overview
+# System Overview
 
 The smart helmet system checks the following conditions before allowing the vehicle to start:
 
-Helmet worn (HL)
+ -Helmet worn (HL)
 
-Alcohol detection (GS – Gas sensor)
+ -Alcohol detection (GS – Gas sensor)
 
-Key presence (KY)
+ -Key presence (KY)
 
-Fuel level monitoring
-
-Emergency location sharing via GSM
-
-Countdown safety delay
+ -Fuel level monitoring
 
 The system displays appropriate messages on a 16×2 LCD and controls the motor (MTR) accordingly.
 
-Components Used in simulation 
+# Components Used in simulation 
 
-PIC Microcontroller
+-PIC Microcontroller
 
-16×2 LCD Display
+-16×2 LCD Display
 
-Push Button as Alcohol/Gas Sensor (GS)
+-Push Button as Alcohol/Gas Sensor (GS)
 
-Push Button as Helmet Detection Switch (HL)
+-Push Button as Helmet Detection Switch (HL)
 
-Key Switch (KY)
+-Key Switch (KY)
 
-Potentiometer as Fuel Level Sensor (ADC input)
+-Potentiometer as Fuel Level Sensor (ADC input)
 
-Motor 
-Due to simulation ,instead of GSM module he stored data is Transmitted
-Pin Configuration
+-Motor 
+(Due to simulation ,instead of GSM module he stored data is Transmitted)
 
-RC0, RC1, RC2 → LCD control pins (RS, RW, EN)
+# Pin Configuration
 
-PORTD → LCD data pins
+-RC0, RC1, RC2 → LCD control pins (RS, RW, EN)
 
-RB4 →  Push Button (Gas sensor (alcohol detection))
+-PORTD → LCD data pins
 
-RB5 →  Push Button  (Helmet sensor)
+-RB4 →  Push Button (Gas sensor (alcohol detection))
 
-RB6 →  Push Button  (Key detection)
+-RB5 →  Push Button  (Helmet sensor)
 
-RC4 → Motor control
+-RB6 →  Push Button  (Key detection)
 
-RB0, RB1 → Switches
+-RC4 → Motor control
+
+-RB0, RB1 → Switches
 
 
 
