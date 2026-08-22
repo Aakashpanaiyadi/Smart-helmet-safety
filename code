@@ -54,26 +54,6 @@ lcd_command(0X0C);
 lcd_command(0X01);
 lcd_command(0X06);
 }
-
-void interrupt sb()  // UART receive interrupt
-{
-if(RCIF==1)
-{
-RCIF=0;
-l=RCREG;
-}
-}
-
-void serial(const unsigned char *a) // Send string through UART
-{
-unsigned char i;
-for(i=0;a[i]!=0;i++)
-{
-TXREG=a[i];
-delay(20000);
-}
-}
- 
 void delay1()  // timer2 delay function
 {
 for(int f=0;f<100;f++)
@@ -102,22 +82,11 @@ TRISB=0X03;
 TRISC=0x80;
 PORTC=0x00;
 
-// UART configuration
-TXSTA=0x24;
-RCSTA=0x90;
-SPBRG=25;
-
-// Tnterrupt config
-PEIE=1;
-GIE=1;
-INTE=1;
-RCIE=1;
 lcd_init();
 delay(100);
 while(1)
 {
-
-       /*
+        /*
        * Fuel level checking mode
        * sw1 = 0 enables fuel level monitoring
         */
@@ -241,51 +210,5 @@ delay(50000);
 }
 }
 
-    /*
-         * Emergency / location sharing mode
-         * Starts countdown before sending location
-         */
-
-else if(sw1==1&&z==0)
-{
-lcd_command(0X01);
-
-//9 second countdown
-for(g=9;g>0;g--)
-{
-lcd_command(0X80);
-lcd_data(g+0x30);
-delay1();
-
-                /*
-                 * If switch is pressed during countdown,
-                 * send location through GSM
-                 */
-if(sw == 1)
-{
-sw1=0;
-delay(50000);delay(50000);
-if(l=='1')
-{
-serial("Location transmited");
-lcd_command(0X80);
-lcd_display("Location shared via gsm");
-g=0;
-z=1;
-}
-}
-}
-sw1=0;
-
- /* Countdown completed without sharing location */
-if(g==0)
-{
-lcd_command(0x80);
-lcd_display("Kindly take rest ");
-lcd_command(0xC0);
-lcd_display("Few minutes     ");
-z=1;
-}
-}
 }
 }
